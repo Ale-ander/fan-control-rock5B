@@ -1,0 +1,8 @@
+{
+  "stages": [
+    { "temp": 35, "state": 1 },
+    { "temp": 45, "state": 2 },
+    { "temp": 55, "state": 3 },
+    { "temp": 65, "state": 4 }
+  ]
+}
