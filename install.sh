@@ -7,10 +7,10 @@ fi
 
 APP_NAME="fan-control-rock5b"
 SOURCE_FILE="./src/fan-control.c"
-CONFIG_FILE="fan-control.json"
+CONFIG_FILE="./etc/fan-control.json"
 BIN_PATH="/usr/local/bin/$APP_NAME"
 SERVICE_FILE="/etc/systemd/system/$APP_NAME.service"
-CONF_DEST="/etc/$CONFIG_FILE"
+CONF_DEST="/etc/"
 
 echo "--- Installing $APP_NAME ---"
 
@@ -49,7 +49,6 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-# 5. Avvio Servizio
 echo "[5/5] Starting service..."
 systemctl daemon-reload
 systemctl enable "$APP_NAME.service"

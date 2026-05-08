@@ -90,6 +90,7 @@ int main() {
             }
 
             if (target_state != last_state) {
+                printf("Temperature: %.2f°C, setting fan state to %d\n", current_temp, target_state);
                 set_fan_state(target_state);
                 last_state = target_state;
             }
