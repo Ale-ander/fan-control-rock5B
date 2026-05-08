@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 APP_NAME="fan-control-rock5b"
-SOURCE_FILE="fan-control.c"
+SOURCE_FILE="./src/fan-control.c"
 CONFIG_FILE="fan-control.json"
 BIN_PATH="/usr/local/bin/$APP_NAME"
 SERVICE_FILE="/etc/systemd/system/$APP_NAME.service"

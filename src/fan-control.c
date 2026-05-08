@@ -18,7 +18,7 @@ FanStage stages[4];
 void load_config() {
     FILE *f = fopen(CONFIG_PATH, "rb");
     if (!f) {
-        perror("Errore apertura config");
+        perror("Config file not found");
         exit(1);
     }
     fseek(f, 0, SEEK_END);
