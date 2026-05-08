@@ -16,25 +16,62 @@ typedef struct {
 FanStage stages[4];
 
 void load_config() {
+    printf("[DEBUG] Apertura file config: %s\n", CONFIG_PATH);
     FILE *f = fopen(CONFIG_PATH, "rb");
     if (!f) {
-        perror("Config file not found");
+        perror("Errore in reading config file");
         exit(1);
     }
+
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
     fseek(f, 0, SEEK_SET);
+
     char *data = malloc(len + 1);
+    if (!data) {
+        printf("Memory allocation failed\n");
+        fclose(f);
+        exit(1);
+    }
+
     fread(data, 1, len, f);
+    data[len] = '\0';
     fclose(f);
 
     cJSON *json = cJSON_Parse(data);
-    cJSON *s_array = cJSON_GetObjectItem(json, "stages");
-    for (int i = 0; i < 4; i++) {
-        cJSON *item = cJSON_GetArrayItem(s_array, i);
-        stages[i].temp = cJSON_GetObjectItem(item, "temp")->valueint;
-        stages[i].state = cJSON_GetObjectItem(item, "state")->valueint;
+    if (!json) {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL) {
+            printf("Parse error: %s\n", error_ptr);
+        }
+        free(data);
+        exit(1);
     }
+
+    cJSON *s_array = cJSON_GetObjectItem(json, "stages");
+    if (!cJSON_IsArray(s_array)) {
+        printf("Parse error: 'stages' is not a JSON array!\n");
+        cJSON_Delete(json);
+        free(data);
+        exit(1);
+    }
+
+    int array_size = cJSON_GetArraySize(s_array);
+
+    for (int i = 0; i < 4 && i < array_size; i++) {
+        cJSON *item = cJSON_GetArrayItem(s_array, i);
+        cJSON *temp = cJSON_GetObjectItem(item, "temp");
+        cJSON *state = cJSON_GetObjectItem(item, "state");
+
+        if (cJSON_IsNumber(temp) && cJSON_IsNumber(state)) {
+            stages[i].temp = temp->valueint;
+            stages[i].state = state->valueint;
+            printf("  -> Loaded Stage %d: T >= %d, State %d\n", i, stages[i].temp, stages[i].state);
+        } else {
+            printf("  -> Error: Stage %d has missing or invalid data!\n", i);
+        }
+    }
+
     cJSON_Delete(json);
     free(data);
 }
@@ -74,7 +111,9 @@ void set_fan_state(int state) {
 }
 
 int main() {
+    printf("=== Fan Control Rock5B ===\n");
     load_config();
+
     int last_state = -1;
 
     while (1) {
